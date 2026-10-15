@@ -14,6 +14,15 @@ import {
   toLocalInput,
   withSavings,
 } from './counter'
+import MilestoneCelebration from './MilestoneCelebration'
+import {
+  type Celebration,
+  loadCelebrated,
+  markCelebrated,
+  pendingCelebration,
+  pruneCelebrated,
+  saveCelebrated,
+} from './milestones'
 import { parseDuration, parseMoney, savingsTotals } from './savings'
 
 // Re-render every second so the counters tick.
@@ -30,7 +39,20 @@ export default function Counters() {
   const [counters, setCounters] = useState<Counter[]>(() => loadCounters())
   const [adding, setAdding] = useState(false)
   const [removing, setRemoving] = useState<Counter | null>(null)
+  const [celebration, setCelebration] = useState<Celebration | null>(null)
   const now = useNow()
+
+  // Celebrate a milestone once: on the first visit after it's crossed, or the
+  // moment it's crossed while open. It's recorded as soon as it's shown, so a
+  // reload (or another tab) won't show it again.
+  useEffect(() => {
+    if (celebration) return
+    const celebrated = loadCelebrated()
+    const due = pendingCelebration(counters, celebrated, now)
+    if (!due) return
+    saveCelebrated(markCelebrated(celebrated, due.counterId, due.count))
+    setCelebration(due)
+  }, [counters, now, celebration])
 
   const update = (next: Counter[]) => {
     setCounters(next)
@@ -47,6 +69,14 @@ export default function Counters() {
   return (
     <>
       <PageHeader title="Counters" description="Every clear day counts." />
+      {celebration && counters.some((c) => c.id === celebration.counterId) && (
+        <MilestoneCelebration
+          key={`${celebration.counterId}:${celebration.count}`}
+          milestone={celebration.milestone}
+          counterName={celebration.counterName}
+          onDismiss={() => setCelebration(null)}
+        />
+      )}
       {counters.length === 0 && !adding && (
         <EmptyState
           title="No counters yet"
@@ -87,7 +117,12 @@ export default function Counters() {
         confirmLabel="Remove"
         variant="danger"
         onConfirm={() => {
-          if (removing) update(counters.filter((c) => c.id !== removing.id))
+          if (removing) {
+            const next = counters.filter((c) => c.id !== removing.id)
+            update(next)
+            saveCelebrated(pruneCelebrated(loadCelebrated(), next))
+            if (celebration?.counterId === removing.id) setCelebration(null)
+          }
           setRemoving(null)
         }}
         onCancel={() => setRemoving(null)}
