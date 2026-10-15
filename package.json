@@ -1,6 +1,6 @@
 {
   "name": "clearday",
-  "description": "Coming soon — track the days since you quit any habit. Calm, private, offline.",
+  "description": "Track the days since you quit any habit. Calm, private, offline.",
   "private": true,
   "packageManager": "pnpm@10.30.3",
   "engines": {
@@ -20,6 +20,6 @@
     "build": "pnpm --filter @clearday/web build",
     "preview": "pnpm --filter @clearday/web preview",
     "typecheck": "pnpm --filter @clearday/web exec tsc -b",
-    "test": "pnpm --filter @clearday/web exec tsc -b"
+    "test": "pnpm --filter @clearday/web test"
   }
 }

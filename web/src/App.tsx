@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initApp } from '@freeappstore/sdk'
 import { BuildInfo, type NavItem, PageHeader, Shell } from '@freeappstore/sdk/ui'
+import Counters from './Counters'
 
 const fas = initApp({ appId: 'clearday' })
 
@@ -10,16 +11,6 @@ const fas = initApp({ appId: 'clearday' })
 const NAV: NavItem[] = [
   { label: 'Counters', href: '/', title: 'ClearDay' },
   { label: 'About', href: '/about', title: 'About — ClearDay' },
-]
-
-// The features planned for v1 (freeappstore-online/platform#195).
-const FEATURES = [
-  { name: 'Counters', what: 'Time since you quit, for one habit or several, with the next milestone.' },
-  { name: 'Money & time saved', what: 'An optional running total of what you have reclaimed.' },
-  { name: 'Milestones', what: 'A gentle celebration at one day, one week, one month and beyond.' },
-  { name: 'Fresh starts', what: 'Begin again without losing your history or your longest streak.' },
-  { name: 'Journal', what: 'A one-line daily note, and your reasons for quitting close at hand.' },
-  { name: 'Private', what: 'Everything stays on your device. No account, optional PIN lock.' },
 ]
 
 export default function App() {
@@ -47,33 +38,18 @@ export default function App() {
   )
 }
 
-function Counters() {
-  return (
-    <>
-      <PageHeader title="Counters" description="Every clear day counts." />
-      <ComingSoon />
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-        {FEATURES.map((feature) => (
-          <li key={feature.name} className="rounded-[var(--radius)] border border-[var(--line)] p-4">
-            <p className="font-semibold text-[var(--ink)]">{feature.name}</p>
-            <p className="text-sm text-[var(--muted)]">{feature.what}</p>
-          </li>
-        ))}
-      </ul>
-    </>
-  )
-}
-
 function About() {
   return (
     <>
       <PageHeader title="About" />
-      <ComingSoon />
+      <p className="text-[var(--muted)]">
+        ClearDay is a calm, private counter for the habits you have quit: alcohol, smoking, vaping,
+        sugar or anything else. It counts your clear days and marks milestones from one day to one
+        year and beyond. Everything stays on your device, with no account and no ads.
+      </p>
       <p className="mt-4 text-[var(--muted)]">
-        ClearDay will be a calm, private counter for the habits you have quit: alcohol, smoking,
-        vaping, sugar or anything else. It will count your clear days, mark milestones and keep your
-        history safe if you need a fresh start. Everything will stay on your device, with no account
-        and no ads.
+        Still to come: money and time saved, fresh starts that keep your history, and a short
+        journal.
       </p>
       <p className="mt-4 text-[var(--muted)]">
         ClearDay is a free, MIT-licensed app on{' '}
@@ -83,14 +59,5 @@ function About() {
         .
       </p>
     </>
-  )
-}
-
-// Placeholder until the features are built. None of them work yet, so it says so plainly.
-function ComingSoon() {
-  return (
-    <p className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 text-[var(--muted)]">
-      Coming soon. ClearDay is in development; the features below aren't available yet.
-    </p>
   )
 }
