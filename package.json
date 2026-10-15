@@ -1,0 +1,15 @@
+{
+  "name": "clearday",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "repository": { "type": "git", "url": "git+https://github.com/freeappstore-online/clearday.git" },
+  "scripts": {
+    "dev": "pnpm --filter @clearday/web dev",
+    "build": "pnpm --filter @clearday/web build",
+    "preview": "pnpm --filter @clearday/web preview",
+    "typecheck": "pnpm --filter @clearday/web exec tsc -b",
+    "test": "pnpm --filter @clearday/web exec tsc -b"
+  }
+}
