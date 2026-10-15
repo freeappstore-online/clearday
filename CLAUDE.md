@@ -2,7 +2,7 @@
 
 ClearDay: a calm, private quit counter on FreeAppStore — time since you quit, milestones, money
 and time saved, fresh starts that keep your history, and a short journal. Everything stays on the
-device (localStorage). Counters work (engine + tests in `web/src/counter.ts`); the rest is planned, see
+device (localStorage). Counters and money/time saved work (`web/src/counter.ts`, `savings.ts`); the rest is planned, see
 freeappstore-online/platform#195.
 
 - Live: https://clearday.freeappstore.online

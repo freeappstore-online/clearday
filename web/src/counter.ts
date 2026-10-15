@@ -25,6 +25,10 @@ export interface Counter {
   startedAt: number
   /** IANA time zone the counter counts calendar days in, e.g. "Europe/London". */
   tz: string
+  /** Optional daily cost as the user typed it, symbol included, e.g. "$12.50" or "4,20 €". */
+  costPerDay?: string
+  /** Optional daily time spent on the habit as typed, e.g. "30 min" or "1h 30m". */
+  timePerDay?: string
 }
 
 export interface WallTime {
@@ -167,6 +171,18 @@ export function elapsed(start: number, now: number, tz: string): Elapsed {
   }
 }
 
+/**
+ * Calendar days from `start` to `now` in `tz`, with the current day as a
+ * fraction of its real length (so a 23-hour DST day still counts as one).
+ */
+export function elapsedDays(start: number, now: number, tz: string): number {
+  const { days } = elapsed(start, now, tz)
+  if (now <= start) return 0
+  const from = addCalendar(start, { days }, tz)
+  const to = addCalendar(start, { days: days + 1 }, tz)
+  return days + (now - from) / (to - from)
+}
+
 export interface Milestone {
   id: string
   label: string
@@ -236,13 +252,26 @@ function isCounter(value: unknown): value is Counter {
   )
 }
 
+const OPTIONAL_TEXT = ['costPerDay', 'timePerDay'] as const
+
+/** Drop optional fields that are blank or not text, so a bad value never costs the counter. */
+function tidy(c: Counter): Counter {
+  const out: Counter = { ...c }
+  for (const key of OPTIONAL_TEXT) {
+    const v: unknown = out[key]
+    if (typeof v === 'string' && v.trim()) out[key] = v.trim()
+    else delete out[key]
+  }
+  return out
+}
+
 /** Saved counters; anything unreadable is skipped rather than lost silently on the next save. */
 export function loadCounters(storage: Pick<Storage, 'getItem'> = localStorage): Counter[] {
   try {
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return []
     const data: unknown = JSON.parse(raw)
-    return Array.isArray(data) ? data.filter(isCounter) : []
+    return Array.isArray(data) ? data.filter(isCounter).map(tidy) : []
   } catch {
     return []
   }
@@ -252,15 +281,27 @@ export function saveCounters(counters: Counter[], storage: Pick<Storage, 'setIte
   storage.setItem(STORAGE_KEY, JSON.stringify(counters))
 }
 
-export function newCounter(kind: CounterKind, name: string, startedAt: number, tz = deviceTimeZone()): Counter {
+export function newCounter(
+  kind: CounterKind,
+  name: string,
+  startedAt: number,
+  tz = deviceTimeZone(),
+  savings: Pick<Counter, 'costPerDay' | 'timePerDay'> = {},
+): Counter {
   const label = KINDS.find((k) => k.kind === kind)?.label ?? 'Counter'
-  return {
+  return tidy({
     id: crypto.randomUUID(),
     name: name.trim() || label,
     kind,
     startedAt,
     tz,
-  }
+    ...savings,
+  })
+}
+
+/** Set or clear a counter's optional daily cost and time. */
+export function withSavings(c: Counter, savings: Pick<Counter, 'costPerDay' | 'timePerDay'>): Counter {
+  return tidy({ ...c, costPerDay: savings.costPerDay, timePerDay: savings.timePerDay })
 }
 
 /** Parse an <input type="datetime-local"> value as wall-clock time in `tz`. */

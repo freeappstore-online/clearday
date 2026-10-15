@@ -12,7 +12,9 @@ import {
   parseLocalInput,
   saveCounters,
   toLocalInput,
+  withSavings,
 } from './counter'
+import { parseDuration, parseMoney, savingsTotals } from './savings'
 
 // Re-render every second so the counters tick.
 function useNow(): number {
@@ -54,7 +56,13 @@ export default function Counters() {
       )}
       <ul className="grid gap-4">
         {counters.map((c) => (
-          <CounterCard key={c.id} counter={c} now={now} onRemove={() => setRemoving(c)} />
+          <CounterCard
+            key={c.id}
+            counter={c}
+            now={now}
+            onRemove={() => setRemoving(c)}
+            onSave={(next) => update(counters.map((x) => (x.id === next.id ? next : x)))}
+          />
         ))}
       </ul>
       {adding ? (
@@ -88,8 +96,20 @@ export default function Counters() {
   )
 }
 
-function CounterCard({ counter, now, onRemove }: { counter: Counter; now: number; onRemove: () => void }) {
+export function CounterCard({
+  counter,
+  now,
+  onRemove,
+  onSave,
+}: {
+  counter: Counter
+  now: number
+  onRemove: () => void
+  onSave: (c: Counter) => void
+}) {
+  const [editing, setEditing] = useState(false)
   const e = elapsed(counter.startedAt, now, counter.tz)
+  const saved = savingsTotals(counter, now)
   const m = milestoneProgress(counter.startedAt, now, counter.tz)
   const started = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short', timeZone: counter.tz })
   const nextOn = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: counter.tz })
@@ -100,14 +120,19 @@ function CounterCard({ counter, now, onRemove }: { counter: Counter; now: number
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h2 className="font-semibold text-[var(--ink)]">{counter.name}</h2>
-          <button
-            type="button"
-            onClick={onRemove}
-            className="text-sm text-[var(--muted)] underline hover:text-[var(--ink)]"
-            aria-label={`Remove ${counter.name}`}
-          >
-            Remove
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className={LINK}
+              aria-label={`Edit money and time saved for ${counter.name}`}
+            >
+              Savings
+            </button>
+            <button type="button" onClick={onRemove} className={LINK} aria-label={`Remove ${counter.name}`}>
+              Remove
+            </button>
+          </div>
         </div>
         <p className="mt-1 display-font text-3xl text-[var(--ink)] tabular-nums">
           {e.days} {e.days === 1 ? 'day' : 'days'}
@@ -115,6 +140,32 @@ function CounterCard({ counter, now, onRemove }: { counter: Counter; now: number
         <p className="text-[var(--muted)] tabular-nums">
           {e.hours}h {String(e.minutes).padStart(2, '0')}m {String(e.seconds).padStart(2, '0')}s
         </p>
+        {(saved.money || saved.time) && (
+          <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 tabular-nums">
+            {saved.money && (
+              <div>
+                <dt className="text-xs text-[var(--muted)]">Money saved</dt>
+                <dd className="font-semibold text-[var(--ink)]">{saved.money}</dd>
+              </div>
+            )}
+            {saved.time && (
+              <div>
+                <dt className="text-xs text-[var(--muted)]">Time reclaimed</dt>
+                <dd className="font-semibold text-[var(--ink)]">{saved.time}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+        {editing && (
+          <EditSavings
+            counter={counter}
+            onSave={(next) => {
+              onSave(next)
+              setEditing(false)
+            }}
+            onCancel={() => setEditing(false)}
+          />
+        )}
         <p className="mt-2 text-sm text-[var(--muted)]">
           {m.reached ? `${m.reached.label} reached. ` : ''}
           Next: {m.next.label} on {nextOn.format(m.next.at)}.
@@ -154,6 +205,8 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
   const [kind, setKind] = useState<CounterKind>('alcohol')
   const [name, setName] = useState('')
   const [start, setStart] = useState(() => toLocalInput(Date.now(), tz))
+  const [cost, setCost] = useState('')
+  const [time, setTime] = useState('')
   const max = toLocalInput(Date.now(), tz)
   const startedAt = parseLocalInput(start, tz)
   const error = startedAt === null ? 'Choose a date and time.' : startedAt > Date.now() ? "That's in the future." : null
@@ -163,7 +216,8 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
       className="mt-4 grid gap-3 rounded-[var(--radius)] border border-[var(--line)] p-4"
       onSubmit={(e) => {
         e.preventDefault()
-        if (startedAt !== null && !error) onAdd(newCounter(kind, name, startedAt, tz))
+        if (startedAt !== null && !error && !savingsInvalid(cost, time))
+          onAdd(newCounter(kind, name, startedAt, tz, { costPerDay: cost, timePerDay: time }))
       }}
     >
       <label className="grid gap-1">
@@ -203,6 +257,7 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
           {error}
         </span>
       </label>
+      <SavingsFields idPrefix="new" cost={cost} time={time} setCost={setCost} setTime={setTime} />
       <div className="flex gap-2">
         <PrimaryButton type="submit">Start counting</PrimaryButton>
         <button type="button" onClick={onCancel} className="rounded-[var(--radius)] px-4 py-2 text-[var(--muted)]">
@@ -212,6 +267,97 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
     </form>
   )
 }
+
+const savingsInvalid = (cost: string, time: string) =>
+  (cost.trim() !== '' && parseMoney(cost) === null) || (time.trim() !== '' && parseDuration(time) === null)
+
+function SavingsFields({
+  idPrefix,
+  cost,
+  time,
+  setCost,
+  setTime,
+}: {
+  idPrefix: string
+  cost: string
+  time: string
+  setCost: (v: string) => void
+  setTime: (v: string) => void
+}) {
+  const costError = cost.trim() !== '' && parseMoney(cost) === null ? 'Enter an amount, like $12.50 or 4,50 €.' : null
+  const timeError =
+    time.trim() !== '' && parseDuration(time) === null ? 'Enter a time up to a day, like 30 min or 1h 30m.' : null
+  return (
+    <>
+      <label className="grid gap-1">
+        <span className="text-sm font-semibold text-[var(--ink)]">
+          Cost per day <span className="font-normal text-[var(--muted)]">(optional, with your currency)</span>
+        </span>
+        <input
+          value={cost}
+          onChange={(e) => setCost(e.target.value)}
+          placeholder="$12.50"
+          maxLength={30}
+          className={FIELD}
+          aria-invalid={costError !== null}
+          aria-describedby={`${idPrefix}-cost-error`}
+        />
+        <span id={`${idPrefix}-cost-error`} className="text-sm text-[var(--danger)]">
+          {costError}
+        </span>
+      </label>
+      <label className="grid gap-1">
+        <span className="text-sm font-semibold text-[var(--ink)]">
+          Time per day <span className="font-normal text-[var(--muted)]">(optional)</span>
+        </span>
+        <input
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          placeholder="30 min"
+          maxLength={30}
+          className={FIELD}
+          aria-invalid={timeError !== null}
+          aria-describedby={`${idPrefix}-time-error`}
+        />
+        <span id={`${idPrefix}-time-error`} className="text-sm text-[var(--danger)]">
+          {timeError}
+        </span>
+      </label>
+    </>
+  )
+}
+
+function EditSavings({
+  counter,
+  onSave,
+  onCancel,
+}: {
+  counter: Counter
+  onSave: (c: Counter) => void
+  onCancel: () => void
+}) {
+  const [cost, setCost] = useState(counter.costPerDay ?? '')
+  const [time, setTime] = useState(counter.timePerDay ?? '')
+  return (
+    <form
+      className="mt-3 grid gap-3 rounded-[var(--radius)] border border-[var(--line)] p-3"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (!savingsInvalid(cost, time)) onSave(withSavings(counter, { costPerDay: cost, timePerDay: time }))
+      }}
+    >
+      <SavingsFields idPrefix={counter.id} cost={cost} time={time} setCost={setCost} setTime={setTime} />
+      <div className="flex gap-2">
+        <PrimaryButton type="submit">Save</PrimaryButton>
+        <button type="button" onClick={onCancel} className="rounded-[var(--radius)] px-4 py-2 text-[var(--muted)]">
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
+const LINK = 'text-sm text-[var(--muted)] underline hover:text-[var(--ink)]'
 
 const FIELD = 'rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--paper)] px-3 py-2 text-[var(--ink)]'
 
