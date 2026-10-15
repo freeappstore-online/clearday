@@ -49,7 +49,8 @@ function About() {
         device, with no account and no ads.
       </p>
       <p className="mt-4 text-[var(--muted)]">
-        Still to come: fresh starts that keep your history, and a short journal.
+        If you slip, ClearDay starts a fresh run and keeps your history, longest streak and
+        journal.
       </p>
       <p className="mt-4 text-[var(--muted)]">
         ClearDay is a free, MIT-licensed app on{' '}

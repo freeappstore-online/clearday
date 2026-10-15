@@ -14,6 +14,8 @@ import {
   toLocalInput,
   withSavings,
 } from './counter'
+import { HardDayNote, HistoryPanel, JournalPanel } from './CounterHistory'
+import { slip } from './history'
 import MilestoneCelebration from './MilestoneCelebration'
 import {
   type Celebration,
@@ -21,6 +23,7 @@ import {
   markCelebrated,
   pendingCelebration,
   pruneCelebrated,
+  resetCelebrated,
   saveCelebrated,
 } from './milestones'
 import { parseDuration, parseMoney, savingsTotals } from './savings'
@@ -39,6 +42,7 @@ export default function Counters() {
   const [counters, setCounters] = useState<Counter[]>(() => loadCounters())
   const [adding, setAdding] = useState(false)
   const [removing, setRemoving] = useState<Counter | null>(null)
+  const [slipping, setSlipping] = useState<Counter | null>(null)
   const [celebration, setCelebration] = useState<Celebration | null>(null)
   const now = useNow()
 
@@ -91,6 +95,7 @@ export default function Counters() {
             counter={c}
             now={now}
             onRemove={() => setRemoving(c)}
+            onSlip={() => setSlipping(c)}
             onSave={(next) => update(counters.map((x) => (x.id === next.id ? next : x)))}
           />
         ))}
@@ -110,6 +115,22 @@ export default function Counters() {
           </div>
         )
       )}
+      <ConfirmDialog
+        open={slipping !== null}
+        title="Slips happen"
+        message={`This starts a fresh run for "${slipping?.name ?? ''}" from now. Your longest streak, earlier runs, calendar and notes all stay.`}
+        confirmLabel="Start a fresh run"
+        onConfirm={() => {
+          if (slipping) {
+            const now = Date.now()
+            update(counters.map((c) => (c.id === slipping.id ? slip(c, now) : c)))
+            saveCelebrated(resetCelebrated(loadCelebrated(), slipping.id))
+            if (celebration?.counterId === slipping.id) setCelebration(null)
+          }
+          setSlipping(null)
+        }}
+        onCancel={() => setSlipping(null)}
+      />
       <ConfirmDialog
         open={removing !== null}
         title="Remove counter?"
@@ -135,11 +156,13 @@ export function CounterCard({
   counter,
   now,
   onRemove,
+  onSlip,
   onSave,
 }: {
   counter: Counter
   now: number
   onRemove: () => void
+  onSlip: () => void
   onSave: (c: Counter) => void
 }) {
   const [editing, setEditing] = useState(false)
@@ -150,12 +173,15 @@ export function CounterCard({
   const nextOn = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: counter.tz })
 
   return (
-    <li className="flex flex-col gap-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 sm:flex-row sm:items-center">
+    <li className="flex flex-col gap-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 sm:flex-row sm:items-start">
       <ProgressRing value={m.progress} label={`${Math.round(m.progress * 100)}% of the way to ${m.next.label}`} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h2 className="font-semibold text-[var(--ink)]">{counter.name}</h2>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap justify-end gap-3">
+            <button type="button" onClick={onSlip} className={LINK} aria-label={`I slipped: start a fresh run for ${counter.name}`}>
+              I slipped
+            </button>
             <button
               type="button"
               onClick={() => setEditing(true)}
@@ -209,6 +235,9 @@ export function CounterCard({
           Since {started.format(counter.startedAt)}
           {counter.tz !== deviceTimeZone() && ` (${counter.tz})`}
         </p>
+        <HardDayNote counter={counter} now={now} />
+        <JournalPanel counter={counter} now={now} onSave={onSave} />
+        <HistoryPanel counter={counter} now={now} />
       </div>
     </li>
   )

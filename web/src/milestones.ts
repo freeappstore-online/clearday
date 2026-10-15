@@ -59,6 +59,11 @@ export function markCelebrated(celebrated: Celebrated, counterId: string, count:
   return { ...celebrated, [counterId]: Math.max(count, celebrated[counterId] ?? 0) }
 }
 
+/** Start over after a slip: the new run's milestones are due again. */
+export function resetCelebrated(celebrated: Celebrated, counterId: string): Celebrated {
+  return { ...celebrated, [counterId]: 0 }
+}
+
 /** Drop entries for counters that no longer exist. */
 export function pruneCelebrated(celebrated: Celebrated, counters: Counter[]): Celebrated {
   const ids = new Set(counters.map((c) => c.id))

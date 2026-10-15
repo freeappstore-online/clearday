@@ -29,6 +29,17 @@ export interface Counter {
   costPerDay?: string
   /** Optional daily time spent on the habit as typed, e.g. "30 min" or "1h 30m". */
   timePerDay?: string
+  /** Earlier runs that ended in a slip, oldest first. The current run starts at `startedAt`. */
+  attempts?: Attempt[]
+  /** Optional "Why I quit", shown as a reminder on hard days. */
+  why?: string
+  /** One-line notes keyed by calendar date ("YYYY-MM-DD") in the counter's zone. */
+  journal?: Record<string, string>
+}
+
+export interface Attempt {
+  start: number
+  end: number
 }
 
 export interface WallTime {
@@ -254,14 +265,34 @@ function isCounter(value: unknown): value is Counter {
 
 const OPTIONAL_TEXT = ['costPerDay', 'timePerDay'] as const
 
-/** Drop optional fields that are blank or not text, so a bad value never costs the counter. */
-function tidy(c: Counter): Counter {
+const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/
+
+const isAttempt = (a: unknown): a is Attempt =>
+  typeof a === 'object' &&
+  a !== null &&
+  Number.isFinite((a as Attempt).start) &&
+  Number.isFinite((a as Attempt).end) &&
+  (a as Attempt).end >= (a as Attempt).start
+
+/** Drop optional fields that are blank or malformed, so a bad value never costs the counter. */
+export function tidy(c: Counter): Counter {
   const out: Counter = { ...c }
-  for (const key of OPTIONAL_TEXT) {
+  for (const key of [...OPTIONAL_TEXT, 'why'] as const) {
     const v: unknown = out[key]
     if (typeof v === 'string' && v.trim()) out[key] = v.trim()
     else delete out[key]
   }
+  const attempts: unknown = out.attempts
+  if (Array.isArray(attempts) && attempts.some(isAttempt)) {
+    out.attempts = attempts.filter(isAttempt).map(({ start, end }) => ({ start, end }))
+  } else delete out.attempts
+  const journal: unknown = out.journal
+  const notes =
+    typeof journal === 'object' && journal !== null && !Array.isArray(journal)
+      ? Object.entries(journal).filter(([k, v]) => DATE_KEY.test(k) && typeof v === 'string' && v.trim())
+      : []
+  if (notes.length > 0) out.journal = Object.fromEntries(notes.map(([k, v]) => [k, (v as string).trim()]))
+  else delete out.journal
   return out
 }
 
