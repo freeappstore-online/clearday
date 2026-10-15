@@ -263,3 +263,58 @@ a:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .confetti { display: none; }
 }
+
+/* App frame: fills the screen exactly. The header stays put, each screen
+   scrolls inside .cd-page, and the page itself never scrolls. */
+div:has(> main.fas-main) {
+  height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: 0 !important;
+}
+
+main.fas-main {
+  min-height: 0;
+}
+
+.cd-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* In the installed app the platform footer is pinned to the bottom. */
+@media (display-mode: standalone) {
+  .cd-page {
+    padding-bottom: 2.25rem;
+  }
+}
+
+/* SDK 0.15 Shell's topbar is ~9px too wide at 320px (text size, theme and
+   Sign in). Tighten its inline spacing on the narrowest phones only. */
+@media (max-width: 359px) {
+  div:has(> main.fas-main) > header {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  div:has(> main.fas-main) > header > div {
+    gap: 0.375rem !important;
+  }
+}
+
+/* Primary buttons. The brand accent is too light behind white text (3.3:1),
+   so light mode uses the deeper accent and dark mode puts dark text on the
+   bright accent; both clear WCAG AA. */
+.cd-btn-primary {
+  background: var(--accent-deep);
+  color: #ffffff;
+}
+.cd-btn-primary:hover:not(:disabled) {
+  background: #86381f;
+}
+:root[data-theme='dark'] .cd-btn-primary {
+  background: var(--accent);
+  color: #111111;
+}
+:root[data-theme='dark'] .cd-btn-primary:hover:not(:disabled) {
+  background: var(--accent-deep);
+}

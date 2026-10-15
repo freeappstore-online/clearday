@@ -24,16 +24,20 @@ export interface Celebration {
 
 export function loadCelebrated(storage: Pick<Storage, 'getItem'> = localStorage): Celebrated {
   try {
-    const data: unknown = JSON.parse(storage.getItem(CELEBRATED_KEY) ?? '{}')
-    if (typeof data !== 'object' || data === null || Array.isArray(data)) return {}
-    const out: Celebrated = {}
-    for (const [id, n] of Object.entries(data)) {
-      if (typeof n === 'number' && Number.isInteger(n) && n >= 0) out[id] = n
-    }
-    return out
+    return parseCelebrated(JSON.parse(storage.getItem(CELEBRATED_KEY) ?? '{}'))
   } catch {
     return {}
   }
+}
+
+/** The valid entries in parsed JSON (saved data or a backup file). */
+export function parseCelebrated(data: unknown): Celebrated {
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) return {}
+  const out: Celebrated = {}
+  for (const [id, n] of Object.entries(data)) {
+    if (typeof n === 'number' && Number.isInteger(n) && n >= 0) out[id] = n
+  }
+  return out
 }
 
 export function saveCelebrated(celebrated: Celebrated, storage: Pick<Storage, 'setItem'> = localStorage): void {

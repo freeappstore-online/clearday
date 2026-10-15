@@ -1,7 +1,7 @@
 {
   "name": "ClearDay",
   "short_name": "ClearDay",
-  "description": "Coming soon — track the days since you quit any habit. Calm, private, offline.",
+  "description": "Track the days since you quit any habit. Calm, private, offline.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

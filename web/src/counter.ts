@@ -301,11 +301,15 @@ export function loadCounters(storage: Pick<Storage, 'getItem'> = localStorage): 
   try {
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return []
-    const data: unknown = JSON.parse(raw)
-    return Array.isArray(data) ? data.filter(isCounter).map(tidy) : []
+    return parseCounters(JSON.parse(raw))
   } catch {
     return []
   }
+}
+
+/** The valid counters in parsed JSON (saved data or a backup file), tidied. */
+export function parseCounters(data: unknown): Counter[] {
+  return Array.isArray(data) ? data.filter(isCounter).map(tidy) : []
 }
 
 export function saveCounters(counters: Counter[], storage: Pick<Storage, 'setItem'> = localStorage): void {

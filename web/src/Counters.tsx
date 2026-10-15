@@ -17,6 +17,7 @@ import {
 import { HardDayNote, HistoryPanel, JournalPanel } from './CounterHistory'
 import { slip } from './history'
 import MilestoneCelebration from './MilestoneCelebration'
+import { goTo } from './nav'
 import {
   type Celebration,
   loadCelebrated,
@@ -73,6 +74,19 @@ export default function Counters() {
   return (
     <>
       <PageHeader title="Counters" description="Every clear day counts." />
+      <p className="-mt-2 mb-4 text-sm text-[var(--muted)]">
+        Everything stays on this device.{' '}
+        <a
+          href="/privacy"
+          className="underline"
+          onClick={(e) => {
+            e.preventDefault()
+            goTo('/privacy')
+          }}
+        >
+          Privacy, PIN lock and backup
+        </a>
+      </p>
       {celebration && counters.some((c) => c.id === celebration.counterId) && (
         <MilestoneCelebration
           key={`${celebration.counterId}:${celebration.count}`}
@@ -84,7 +98,7 @@ export default function Counters() {
       {counters.length === 0 && !adding && (
         <EmptyState
           title="No counters yet"
-          message="Start a counter for something you've quit. It stays on this device."
+          message="Start a counter for something you've quit."
           action={<PrimaryButton onClick={() => setAdding(true)}>Start a counter</PrimaryButton>}
         />
       )}
@@ -186,7 +200,7 @@ export function CounterCard({
               type="button"
               onClick={() => setEditing(true)}
               className={LINK}
-              aria-label={`Edit money and time saved for ${counter.name}`}
+              aria-label={`Savings for ${counter.name}: money and time saved`}
             >
               Savings
             </button>
@@ -430,7 +444,7 @@ function PrimaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
     <button
       type="button"
       {...props}
-      className="rounded-[var(--radius)] bg-[var(--accent)] px-4 py-2 font-semibold text-white hover:bg-[var(--accent-deep)]"
+      className="rounded-[var(--radius)] cd-btn-primary px-4 py-2 font-semibold"
     />
   )
 }
