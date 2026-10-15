@@ -1,10 +1,20 @@
 {
   "name": "clearday",
+  "description": "Coming soon — track the days since you quit any habit. Calm, private, offline.",
   "private": true,
   "packageManager": "pnpm@10.30.3",
-  "engines": { "node": ">=22" },
-  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
-  "repository": { "type": "git", "url": "git+https://github.com/freeappstore-online/clearday.git" },
+  "engines": {
+    "node": ">=22"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freeappstore-online/clearday.git"
+  },
   "scripts": {
     "dev": "pnpm --filter @clearday/web dev",
     "build": "pnpm --filter @clearday/web build",
