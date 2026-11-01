@@ -24,16 +24,16 @@ export function HardDayNote({ counter, now }: { counter: Counter; now: number })
   if (!reason || (reason === 'far' && !counter.why)) return null
   const longest = longestStreak(counter, now)
   return (
-    <div className="mt-3 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel-quiet)] p-3 text-sm" data-hard-day={reason}>
+    <div className="mt-3 rounded-fas border border-line bg-panel-quiet p-3 text-sm" data-hard-day={reason}>
       {reason === 'slip' && (
-        <p className="text-[var(--ink)]">
+        <p className="text-ink">
           Slips happen, and they don't erase the clear days you had. Your longest run is{' '}
           {days(longest.days)}. Every clear day still counts.
         </p>
       )}
       {counter.why && (
-        <p className={reason === 'slip' ? 'mt-2 text-[var(--muted)]' : 'text-[var(--muted)]'}>
-          <span className="font-semibold text-[var(--ink)]">Why you quit:</span> {counter.why}
+        <p className={reason === 'slip' ? 'mt-2 text-muted' : 'text-muted'}>
+          <span className="font-semibold text-ink">Why you quit:</span> {counter.why}
         </p>
       )}
     </div>
@@ -66,7 +66,7 @@ function LineField({
   }
   return (
     <label className="grid gap-1">
-      <span className="text-sm font-semibold text-[var(--ink)]">{label}</span>
+      <span className="text-sm font-semibold text-ink">{label}</span>
       <input
         value={draft}
         maxLength={maxLength}
@@ -79,7 +79,7 @@ function LineField({
             save()
           }
         }}
-        className="rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--paper)] px-3 py-2 text-[var(--ink)]"
+        className="rounded-fas border border-line-strong bg-paper px-3 py-2 text-ink"
       />
     </label>
   )
@@ -97,8 +97,8 @@ export function JournalPanel({
   const today = dateKey(now, counter.tz)
   const past = notes(counter).filter((n) => n.key !== today)
   return (
-    <details className="mt-3 rounded-[var(--radius)] border border-[var(--line)] p-3">
-      <summary className="cursor-pointer text-sm font-semibold text-[var(--ink)]">Journal</summary>
+    <details className="mt-3 rounded-fas border border-line p-3">
+      <summary className="cursor-pointer text-sm font-semibold text-ink">Journal</summary>
       <div className="mt-3 grid gap-3">
         <LineField
           label="Why I quit"
@@ -118,8 +118,8 @@ export function JournalPanel({
           <ul className="grid gap-1 text-sm">
             {past.slice(0, 7).map((n) => (
               <li key={n.key}>
-                <span className="text-[var(--muted)] tabular-nums">{formatKey(n.key)}</span>{' '}
-                <span className="text-[var(--ink)]">{n.text}</span>
+                <span className="text-muted tabular-nums">{formatKey(n.key)}</span>{' '}
+                <span className="text-ink">{n.text}</span>
               </li>
             ))}
           </ul>
@@ -133,10 +133,10 @@ const formatKey = (key: string) =>
   new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' }).format(Date.parse(`${key}T12:00:00Z`))
 
 const CELL: Record<DayStatus, string> = {
-  clean: 'bg-[var(--mint)]',
-  partial: 'bg-[var(--mint-soft)]',
-  slip: 'bg-[var(--accent-soft)]',
-  none: 'bg-[var(--line)]',
+  clean: 'bg-mint',
+  partial: 'bg-mint-soft',
+  slip: 'bg-accent-soft',
+  none: 'bg-line',
   future: 'bg-transparent',
 }
 
@@ -158,9 +158,9 @@ export function HistoryPanel({ counter, now }: { counter: Counter; now: number }
   const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: counter.tz })
 
   return (
-    <details className="mt-3 rounded-[var(--radius)] border border-[var(--line)] p-3">
-      <summary className="cursor-pointer text-sm font-semibold text-[var(--ink)]">History</summary>
-      <p className="mt-3 text-sm text-[var(--ink)]">
+    <details className="mt-3 rounded-fas border border-line p-3">
+      <summary className="cursor-pointer text-sm font-semibold text-ink">History</summary>
+      <p className="mt-3 text-sm text-ink">
         Longest run: <span className="font-semibold">{days(longest.days)}</span>
         {longest.current ? ' (this one)' : ` (${when.format(longest.start)} to ${when.format(longest.end)})`}
       </p>
@@ -178,7 +178,7 @@ export function HistoryPanel({ counter, now }: { counter: Counter; now: number }
           />
         ))}
       </div>
-      <p className="mt-2 flex flex-wrap gap-x-3 text-xs text-[var(--muted)]">
+      <p className="mt-2 flex flex-wrap gap-x-3 text-xs text-muted">
         {(['clean', 'partial', 'slip'] as const).map((s) => (
           <span key={s} className="inline-flex items-center gap-1">
             <span className={`inline-block h-2.5 w-2.5 rounded-[2px] ${CELL[s]}`} aria-hidden="true" />
@@ -188,8 +188,8 @@ export function HistoryPanel({ counter, now }: { counter: Counter; now: number }
       </p>
       {attempts.length > 0 && (
         <>
-          <p className="mt-3 text-sm font-semibold text-[var(--ink)]">Earlier runs</p>
-          <ul className="grid gap-1 text-sm text-[var(--muted)]">
+          <p className="mt-3 text-sm font-semibold text-ink">Earlier runs</p>
+          <ul className="grid gap-1 text-sm text-muted">
             {attempts.map((a) => (
               <li key={a.start}>
                 {when.format(a.start)} to {when.format(a.end)}: {days(a.days)}

@@ -75,13 +75,13 @@ function About() {
   return (
     <>
       <PageHeader title="About" />
-      <p className="text-[var(--muted)]">
+      <p className="text-muted">
         ClearDay is a calm, private counter for the habits you have quit: alcohol, smoking, vaping,
         sugar or anything else. It counts your clear days and marks milestones from one day to one
         year and beyond, with an optional tally of money and time saved. Everything stays on your
         device, with no account and no ads.
       </p>
-      <p className="mt-4 text-[var(--muted)]">
+      <p className="mt-4 text-muted">
         If you slip, ClearDay starts a fresh run and keeps your history, longest streak and
         journal. You can lock it with a PIN and keep a backup file; see{' '}
         <a
@@ -96,7 +96,7 @@ function About() {
         </a>
         .
       </p>
-      <p className="mt-4 text-[var(--muted)]">
+      <p className="mt-4 text-muted">
         ClearDay is a free, MIT-licensed app on{' '}
         <a href="https://freeappstore.online" className="underline">
           FreeAppStore

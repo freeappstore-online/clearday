@@ -24,12 +24,12 @@ function Section({ id, title, children }: { id: string; title: string; children:
   return (
     <section
       aria-labelledby={id}
-      className="mt-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4"
+      className="mt-4 rounded-fas border border-line bg-panel p-4"
     >
-      <h2 id={id} className="font-semibold text-[var(--ink)]">
+      <h2 id={id} className="font-semibold text-ink">
         {title}
       </h2>
-      <div className="mt-2 grid gap-3 text-sm text-[var(--muted)]">{children}</div>
+      <div className="mt-2 grid gap-3 text-sm text-muted">{children}</div>
     </section>
   )
 }
@@ -70,15 +70,15 @@ export function PrivacyNote() {
 }
 
 const FIELD =
-  'rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--paper)] px-3 py-2 text-[var(--ink)]'
+  'rounded-fas border border-line-strong bg-paper px-3 py-2 text-ink'
 const BUTTON =
-  'rounded-[var(--radius)] cd-btn-primary px-4 py-2 font-semibold disabled:opacity-50'
-const QUIET = 'rounded-[var(--radius)] border border-[var(--line-strong)] px-4 py-2 font-semibold text-[var(--ink)]'
+  'rounded-fas cd-btn-primary px-4 py-2 font-semibold disabled:opacity-50'
+const QUIET = 'rounded-fas border border-line-strong px-4 py-2 font-semibold text-ink'
 
 function PinInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <label className="grid gap-1">
-      <span className="font-semibold text-[var(--ink)]">{label}</span>
+      <span className="font-semibold text-ink">{label}</span>
       <input
         type="password"
         inputMode="numeric"
@@ -118,12 +118,12 @@ function PinSection() {
           : 'Optionally, ask for a 4-digit PIN each time ClearDay opens.'}{' '}
         The PIN keeps the app closed to someone picking up your device; it doesn't encrypt your data.
       </p>
-      <p className="font-semibold text-[var(--ink)]" role="note">
+      <p className="font-semibold text-ink" role="note">
         There is no way to recover a forgotten PIN. It's stored only on this device, so the only way
         back in is to erase ClearDay's data. Keep a backup if your history matters to you.
       </p>
       {message && (
-        <p role="status" className="text-[var(--ink)]">
+        <p role="status" className="text-ink">
           {message}
         </p>
       )}
@@ -170,7 +170,7 @@ function PinSection() {
             />
             <span>I understand that if I forget this PIN, it can't be recovered.</span>
           </label>
-          <p role="alert" className="text-[var(--danger)]">
+          <p role="alert" className="text-danger">
             {error}
           </p>
           <div className="flex gap-2">
@@ -196,7 +196,7 @@ function PinSection() {
           }}
         >
           <PinInput label="Current PIN" value={pin} onChange={setPinValue} />
-          <p role="alert" className="text-[var(--danger)]">
+          <p role="alert" className="text-danger">
             {error}
           </p>
           <div className="flex gap-2">
@@ -279,17 +279,17 @@ function BackupSection() {
         />
       </div>
       {message && (
-        <p role="status" className="text-[var(--ink)]">
+        <p role="status" className="text-ink">
           {message}
         </p>
       )}
       {error && (
-        <p role="alert" className="text-[var(--danger)]">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
       <p>
-        <button type="button" className="text-[var(--danger)] underline" onClick={() => setErasing(true)}>
+        <button type="button" className="text-danger underline" onClick={() => setErasing(true)}>
           Erase all ClearDay data on this device
         </button>
       </p>
@@ -336,7 +336,7 @@ function Support() {
         support lines, and local support services can tell you what's available near you.
       </p>
       <p>
-        <a href={HELPLINE_DIRECTORY} target="_blank" rel="noopener noreferrer" className="text-[var(--ink)] underline">
+        <a href={HELPLINE_DIRECTORY} target="_blank" rel="noopener noreferrer" className="text-ink underline">
           Find a helpline in your country
         </a>{' '}
         (a general directory, opens in a new tab). ClearDay isn't connected to any service and doesn't

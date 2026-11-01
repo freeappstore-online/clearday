@@ -76,26 +76,26 @@ export default function MilestoneCelebration({
       <div
         role="status"
         data-motion={reduced ? 'static' : 'confetti'}
-        className="mb-4 flex items-center gap-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel-strong)] p-4"
+        className="mb-4 flex items-center gap-4 rounded-fas border border-line bg-panel-strong p-4"
       >
         {reduced && (
           <span
-            className="celebration-badge flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-center text-xs font-bold leading-tight text-[var(--accent-deep)]"
+            className="celebration-badge flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent-soft text-center text-xs font-bold leading-tight text-accent-deep"
             aria-hidden="true"
           >
             {milestone.label}
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="display-font text-xl text-[var(--ink)]">
+          <p className="display-font text-xl text-ink">
             {title} <span aria-hidden="true">🎉</span>
           </p>
-          <p className="text-sm text-[var(--muted)]">{body}</p>
+          <p className="text-sm text-muted">{body}</p>
         </div>
         <button
           type="button"
           onClick={onDismiss}
-          className="rounded-[var(--radius)] px-3 py-2 text-sm font-semibold text-[var(--accent-deep)] underline"
+          className="rounded-fas px-3 py-2 text-sm font-semibold text-accent-deep underline"
         >
           Thanks
         </button>

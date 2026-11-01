@@ -48,7 +48,7 @@ export default function LockScreen({ onUnlock, onErased }: { onUnlock: () => voi
         }}
       >
         <label className="grid gap-1">
-          <span className="text-sm font-semibold text-[var(--ink)]">PIN</span>
+          <span className="text-sm font-semibold text-ink">PIN</span>
           <input
             type="password"
             inputMode="numeric"
@@ -64,21 +64,21 @@ export default function LockScreen({ onUnlock, onErased }: { onUnlock: () => voi
             }}
             aria-invalid={error !== null}
             aria-describedby="pin-status"
-            className="rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--paper)] px-3 py-2 text-center text-2xl tracking-[0.5em] text-[var(--ink)]"
+            className="rounded-fas border border-line-strong bg-paper px-3 py-2 text-center text-2xl tracking-[0.5em] text-ink"
           />
         </label>
-        <p id="pin-status" role="status" className="min-h-5 text-sm text-[var(--danger)]">
+        <p id="pin-status" role="status" className="min-h-5 text-sm text-danger">
           {waiting ? `Too many tries. You can try again in ${Math.ceil((until - now) / 1000)} s.` : error}
         </p>
         <button
           type="submit"
           disabled={waiting || pin.length !== 4 || checking}
-          className="rounded-[var(--radius)] cd-btn-primary px-4 py-2 font-semibold disabled:opacity-50"
+          className="rounded-fas cd-btn-primary px-4 py-2 font-semibold disabled:opacity-50"
         >
           Unlock
         </button>
       </form>
-      <div className="mt-6 text-sm text-[var(--muted)]">
+      <div className="mt-6 text-sm text-muted">
         {forgot ? (
           <>
             <p>
@@ -89,7 +89,7 @@ export default function LockScreen({ onUnlock, onErased }: { onUnlock: () => voi
             <button
               type="button"
               onClick={() => setErasing(true)}
-              className="mt-2 font-semibold text-[var(--danger)] underline"
+              className="mt-2 font-semibold text-danger underline"
             >
               Erase ClearDay data
             </button>

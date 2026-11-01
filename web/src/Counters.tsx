@@ -74,7 +74,7 @@ export default function Counters() {
   return (
     <>
       <PageHeader title="Counters" description="Every clear day counts." />
-      <p className="-mt-2 mb-4 text-sm text-[var(--muted)]">
+      <p className="-mt-2 mb-4 text-sm text-muted">
         Everything stays on this device.{' '}
         <a
           href="/privacy"
@@ -187,11 +187,11 @@ export function CounterCard({
   const nextOn = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: counter.tz })
 
   return (
-    <li className="flex flex-col gap-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 sm:flex-row sm:items-start">
+    <li className="flex flex-col gap-4 rounded-fas border border-line bg-panel p-4 sm:flex-row sm:items-start">
       <ProgressRing value={m.progress} label={`${Math.round(m.progress * 100)}% of the way to ${m.next.label}`} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <h2 className="font-semibold text-[var(--ink)]">{counter.name}</h2>
+          <h2 className="font-semibold text-ink">{counter.name}</h2>
           <div className="flex flex-wrap justify-end gap-3">
             <button type="button" onClick={onSlip} className={LINK} aria-label={`I slipped: start a fresh run for ${counter.name}`}>
               I slipped
@@ -209,24 +209,24 @@ export function CounterCard({
             </button>
           </div>
         </div>
-        <p className="mt-1 display-font text-3xl text-[var(--ink)] tabular-nums">
+        <p className="mt-1 display-font text-3xl text-ink tabular-nums">
           {e.days} {e.days === 1 ? 'day' : 'days'}
         </p>
-        <p className="text-[var(--muted)] tabular-nums">
+        <p className="text-muted tabular-nums">
           {e.hours}h {String(e.minutes).padStart(2, '0')}m {String(e.seconds).padStart(2, '0')}s
         </p>
         {(saved.money || saved.time) && (
           <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 tabular-nums">
             {saved.money && (
               <div>
-                <dt className="text-xs text-[var(--muted)]">Money saved</dt>
-                <dd className="font-semibold text-[var(--ink)]">{saved.money}</dd>
+                <dt className="text-xs text-muted">Money saved</dt>
+                <dd className="font-semibold text-ink">{saved.money}</dd>
               </div>
             )}
             {saved.time && (
               <div>
-                <dt className="text-xs text-[var(--muted)]">Time reclaimed</dt>
-                <dd className="font-semibold text-[var(--ink)]">{saved.time}</dd>
+                <dt className="text-xs text-muted">Time reclaimed</dt>
+                <dd className="font-semibold text-ink">{saved.time}</dd>
               </div>
             )}
           </dl>
@@ -241,11 +241,11 @@ export function CounterCard({
             onCancel={() => setEditing(false)}
           />
         )}
-        <p className="mt-2 text-sm text-[var(--muted)]">
+        <p className="mt-2 text-sm text-muted">
           {m.reached ? `${m.reached.label} reached. ` : ''}
           Next: {m.next.label} on {nextOn.format(m.next.at)}.
         </p>
-        <p className="text-xs text-[var(--muted)]">
+        <p className="text-xs text-muted">
           Since {started.format(counter.startedAt)}
           {counter.tz !== deviceTimeZone() && ` (${counter.tz})`}
         </p>
@@ -291,7 +291,7 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
 
   return (
     <form
-      className="mt-4 grid gap-3 rounded-[var(--radius)] border border-[var(--line)] p-4"
+      className="mt-4 grid gap-3 rounded-fas border border-line p-4"
       onSubmit={(e) => {
         e.preventDefault()
         if (startedAt !== null && !error && !savingsInvalid(cost, time))
@@ -299,7 +299,7 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
       }}
     >
       <label className="grid gap-1">
-        <span className="text-sm font-semibold text-[var(--ink)]">What did you quit?</span>
+        <span className="text-sm font-semibold text-ink">What did you quit?</span>
         <select value={kind} onChange={(e) => setKind(e.target.value as CounterKind)} className={FIELD}>
           {KINDS.map((k) => (
             <option key={k.kind} value={k.kind}>
@@ -309,8 +309,8 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
         </select>
       </label>
       <label className="grid gap-1">
-        <span className="text-sm font-semibold text-[var(--ink)]">
-          Name {kind !== 'custom' && <span className="font-normal text-[var(--muted)]">(optional)</span>}
+        <span className="text-sm font-semibold text-ink">
+          Name {kind !== 'custom' && <span className="font-normal text-muted">(optional)</span>}
         </span>
         <input
           value={name}
@@ -321,7 +321,7 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
         />
       </label>
       <label className="grid gap-1">
-        <span className="text-sm font-semibold text-[var(--ink)]">When did you quit?</span>
+        <span className="text-sm font-semibold text-ink">When did you quit?</span>
         <input
           type="datetime-local"
           value={start}
@@ -331,14 +331,14 @@ function AddCounter({ onAdd, onCancel }: { onAdd: (c: Counter) => void; onCancel
           aria-invalid={error !== null}
           aria-describedby="start-error"
         />
-        <span id="start-error" className="text-sm text-[var(--danger)]">
+        <span id="start-error" className="text-sm text-danger">
           {error}
         </span>
       </label>
       <SavingsFields idPrefix="new" cost={cost} time={time} setCost={setCost} setTime={setTime} />
       <div className="flex gap-2">
         <PrimaryButton type="submit">Start counting</PrimaryButton>
-        <button type="button" onClick={onCancel} className="rounded-[var(--radius)] px-4 py-2 text-[var(--muted)]">
+        <button type="button" onClick={onCancel} className="rounded-fas px-4 py-2 text-muted">
           Cancel
         </button>
       </div>
@@ -368,8 +368,8 @@ function SavingsFields({
   return (
     <>
       <label className="grid gap-1">
-        <span className="text-sm font-semibold text-[var(--ink)]">
-          Cost per day <span className="font-normal text-[var(--muted)]">(optional, with your currency)</span>
+        <span className="text-sm font-semibold text-ink">
+          Cost per day <span className="font-normal text-muted">(optional, with your currency)</span>
         </span>
         <input
           value={cost}
@@ -380,13 +380,13 @@ function SavingsFields({
           aria-invalid={costError !== null}
           aria-describedby={`${idPrefix}-cost-error`}
         />
-        <span id={`${idPrefix}-cost-error`} className="text-sm text-[var(--danger)]">
+        <span id={`${idPrefix}-cost-error`} className="text-sm text-danger">
           {costError}
         </span>
       </label>
       <label className="grid gap-1">
-        <span className="text-sm font-semibold text-[var(--ink)]">
-          Time per day <span className="font-normal text-[var(--muted)]">(optional)</span>
+        <span className="text-sm font-semibold text-ink">
+          Time per day <span className="font-normal text-muted">(optional)</span>
         </span>
         <input
           value={time}
@@ -397,7 +397,7 @@ function SavingsFields({
           aria-invalid={timeError !== null}
           aria-describedby={`${idPrefix}-time-error`}
         />
-        <span id={`${idPrefix}-time-error`} className="text-sm text-[var(--danger)]">
+        <span id={`${idPrefix}-time-error`} className="text-sm text-danger">
           {timeError}
         </span>
       </label>
@@ -418,7 +418,7 @@ function EditSavings({
   const [time, setTime] = useState(counter.timePerDay ?? '')
   return (
     <form
-      className="mt-3 grid gap-3 rounded-[var(--radius)] border border-[var(--line)] p-3"
+      className="mt-3 grid gap-3 rounded-fas border border-line p-3"
       onSubmit={(e) => {
         e.preventDefault()
         if (!savingsInvalid(cost, time)) onSave(withSavings(counter, { costPerDay: cost, timePerDay: time }))
@@ -427,7 +427,7 @@ function EditSavings({
       <SavingsFields idPrefix={counter.id} cost={cost} time={time} setCost={setCost} setTime={setTime} />
       <div className="flex gap-2">
         <PrimaryButton type="submit">Save</PrimaryButton>
-        <button type="button" onClick={onCancel} className="rounded-[var(--radius)] px-4 py-2 text-[var(--muted)]">
+        <button type="button" onClick={onCancel} className="rounded-fas px-4 py-2 text-muted">
           Cancel
         </button>
       </div>
@@ -435,16 +435,16 @@ function EditSavings({
   )
 }
 
-const LINK = 'text-sm text-[var(--muted)] underline hover:text-[var(--ink)]'
+const LINK = 'text-sm text-muted underline hover:text-ink'
 
-const FIELD = 'rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--paper)] px-3 py-2 text-[var(--ink)]'
+const FIELD = 'rounded-fas border border-line-strong bg-paper px-3 py-2 text-ink'
 
 function PrimaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"
       {...props}
-      className="rounded-[var(--radius)] cd-btn-primary px-4 py-2 font-semibold"
+      className="rounded-fas cd-btn-primary px-4 py-2 font-semibold"
     />
   )
 }
